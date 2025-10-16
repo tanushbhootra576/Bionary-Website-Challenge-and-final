@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Github, Linkedin, Twitter, Filter, Users, Award, Code, Palette, Search, Beaker, Settings } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import { teamData } from '../teamData'
+const departments = ["Web", "Marketing", "AIML", "Robotics"]
+const batches = [2023,2024,2025]
 
 const TeamMemberCard = ({ member, onClick }) => {
   const { isDark } = useTheme()

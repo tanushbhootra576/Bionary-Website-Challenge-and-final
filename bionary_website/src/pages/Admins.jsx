@@ -136,9 +136,9 @@ function Admins() {
     if (tab === "events") {
       return (
         <>
-          <table className="min-w-full border mb-4 mt-6 text-center">
+          <table className="min-w-full border mb-4 mt-6 text-center bg-space-900 p-2">
             <thead>
-              <tr className="border-b-4 border-white">
+              <tr className="border-b-4 border-white text-2xl">
                 <th>Title</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -146,12 +146,13 @@ function Admins() {
             </thead>
             <tbody>
               {items.map((ev) => (
-                <tr key={ev._id} className="border-b-2 border-white">
+                <tr key={ev._id} className="border-b-2 border-space-500 hover:bg-space-700">
                   <td>{ev.title}</td>
                   <td>{ev.date}</td>
                   <td>
+                    <div className="flex gap-2 self-center justify-center">
                     <button
-                      className="p-2 m-2"
+                      className="m-2 text-amber-500 border-2 border-amber-600 rounded-md"
                       onClick={() => {
                         setForm(ev);
                         setEditId(ev.id);
@@ -159,13 +160,14 @@ function Admins() {
                     >
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(ev.id)}>Delete</button>
+                    <button className="text-red-500 border-2 border-red-500 rounded-md" onClick={() => handleDelete(ev.id)}>Delete</button>
+                  </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-2 text-left">
+          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-1 text-left">
             Title:
             <input
               required
@@ -251,7 +253,7 @@ function Admins() {
             <br />
             <button
               type="submit"
-              className="bg-red-500 border-2 border-yellow-300 p-5"
+              className="bg-red-500 border-2 border-yellow-300 p-5 text-green-400"
             >
               {editId ? "Update" : "Create"}
             </button>
@@ -274,9 +276,9 @@ function Admins() {
     if (tab === "gallery") {
       return (
         <>
-          <table className="min-w-full border mb-4">
+          <table className="min-w-full border mb-4 mt-6 text-center bg-space-900 p-2">
             <thead>
-              <tr className="border-b-4 border-white">
+              <tr className="border-b-4 border-white text-2xl">
                 <th>Title</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -284,11 +286,12 @@ function Admins() {
             </thead>
             <tbody>
               {items.map((g) => (
-                <tr key={g._id} className="border-b-2 border-white">
+                <tr key={g._id} className="border-b-2 border-space-500 hover:bg-space-700">
                   <td>{g.title}</td>
                   <td>{g.date}</td>
                   <td>
                     <button
+                    className="border-2 rounded-md text-amber-600"
                       onClick={() => {
                         setForm(g);
                         setEditId(g.id);
@@ -296,13 +299,14 @@ function Admins() {
                     >
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(g.id)}>Delete</button>
+                    <button className="text-red-500 border-2 rounded-md"
+                    onClick={() => handleDelete(g.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-2">
+          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-1">
             Title:
             <input
               required
@@ -351,7 +355,7 @@ function Admins() {
                 setForm((f) => ({ ...f, image: e.target.value }))
               }
             />
-            <button type="submit">{editId ? "Update" : "Create"}</button>
+            <button type="submit" className="border-2 px-2">{editId ? "Update" : "Create"}</button>
             {editId && (
               <button
                 type="button"
@@ -370,9 +374,9 @@ function Admins() {
     if (tab === "leaderboard") {
       return (
         <>
-          <table className="min-w-full border mb-4">
+          <table className="min-w-full border mb-4 mt-6 text-center bg-space-900 p-2">
             <thead>
-              <tr className="border-b-4 border-white">
+              <tr className="border-b-4 border-white text-2xl">
                 <th>Name</th>
                 <th>Score</th>
                 <th>Rank</th>
@@ -381,12 +385,13 @@ function Admins() {
             </thead>
             <tbody>
               {items.map((l, index) => (
-                <tr key={l.id} className="border-b-2 border-white">
+                <tr key={l.id} className="border-b-2 border-space-500 text-center hover:bg-space-700">
                   <td>{l.name}</td>
                   <td>{l.score}</td>
-                  <td>{index+1}</td>
+                  <td>{index + 1}</td>
                   <td>
                     <button
+                    className="mr-2 border-2 text-amber-600 rounded-md"
                       onClick={() => {
                         setForm(l);
                         setEditId(l.id);
@@ -394,13 +399,13 @@ function Admins() {
                     >
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(l.id)}>Delete</button>
+                    <button className="border-2 rounded-md text-red-500" onClick={() => handleDelete(l.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-2">
+          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-1">
             Name:
             <input
               required
@@ -425,7 +430,7 @@ function Admins() {
                 setForm((f) => ({ ...f, department: e.target.value }))
               }
             />
-            <button type="submit">{editId ? "Update" : "Create"}</button>
+            <button className="border-2 px-2" type="submit">{editId ? "Update" : "Create"}</button>
             {editId && (
               <button
                 type="button"
@@ -444,9 +449,9 @@ function Admins() {
     if (tab === "blog") {
       return (
         <>
-          <table className="min-w-full border mb-4">
+          <table className="min-w-full border mb-4 mt-6 text-center bg-space-900 p-2">
             <thead>
-              <tr className="border-b-4 border-white">
+              <tr className="border-b-4 border-white text-2xl">
                 <th>Title</th>
                 <th>Author</th>
                 <th>Date</th>
@@ -455,12 +460,13 @@ function Admins() {
             </thead>
             <tbody>
               {items.map((b) => (
-                <tr key={b.id} className="border-b-2 border-white">
+                <tr key={b.id} className="border-b-2 border-space-500 hover:bg-space-700">
                   <td>{b.title}</td>
                   <td>{b.author}</td>
                   <td>{b.date}</td>
                   <td>
                     <button
+                    className="mr-2 rounded-md border-2 text-amber-600"
                       onClick={() => {
                         setForm(b);
                         setEditId(b.id);
@@ -468,13 +474,13 @@ function Admins() {
                     >
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(b.id)}>Delete</button>
+                    <button className="border-2 rounded-md text-red-500" onClick={() => handleDelete(b.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-2">
+          <form onSubmit={handleSave} className="mb-4 grid grid-cols-4 gap-1">
             Title:
             <input
               required
@@ -520,7 +526,7 @@ function Admins() {
                 setForm((f) => ({ ...f, image: e.target.value }))
               }
             />
-            <button type="submit">{editId ? "Update" : "Create"}</button>
+            <button className="px-2 border-2" type="submit">{editId ? "Update" : "Create"}</button>
             {editId && (
               <button
                 type="button"
@@ -585,7 +591,7 @@ function Admins() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 border rounded shadow bg-black admin">
+    <section className="max-w-3xl mx-auto mt-30 p-6 border rounded-lg shadow bg-space-800 admin">
       <h2 className="text-2xl mb-4">Admin Content Management</h2>
       <div className="mb-4 flex gap-2">
         {["events", "gallery", "leaderboard", "blog"].map((t) => (
@@ -596,14 +602,14 @@ function Admins() {
               setForm({});
               setEditId(null);
             }}
-            className={tab === t ? "font-bold underline text-blue-700" : ""}
+            className={tab === t ? "font-bold bg-space-900 p-2 rounded-md" : "p-2 rounded-md bg-space-700"}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
         ))}
         <button
           onClick={handleLogout}
-          className="ml-auto text-red-600 font-semibold"
+          className=" text-red-600 font-bold text-xl right-0"
         >
           Logout
         </button>
@@ -611,7 +617,7 @@ function Admins() {
       {loading && <div>Loading...</div>}
       {error && <div className="text-red-500 mb-2 font-semibold">{error}</div>}
       {renderTable()}
-    </div>
+    </section>
   );
 }
 

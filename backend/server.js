@@ -216,9 +216,85 @@ app.delete("/api/blog/:id", authenticateToken, async (req, res) => {
   res.json({ success: true });
 });
 
+app.get("/api/departments", async (req, res) => {
+  res.json({departmentsData})
+})
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
 });
+
+const departmentsData = [
+  {
+    image: "",
+    name: "Web",
+    description: "Fill this",
+    type: "Technical",
+    leads: [
+      {
+        name: "W1",
+        title: "Web Lead",
+        image: "",
+      },
+      {
+        name: "W2",
+        title: "Web SubLead",
+        image: "",
+      },
+      {
+        name: "W3",
+        title: "Web SubLead",
+        image: "",
+      },
+    ],
+  },
+  {
+    image: "",
+    name: "AIML",
+    description: "Fill this",
+    type: "Technical",
+    leads: [
+      {
+        name: "A1",
+        title: "AIML Lead",
+        image: "",
+      },
+      {
+        name: "A2",
+        title: "AIML SubLead",
+        image: "",
+      },
+      {
+        name: "A3",
+        title: "AIML SubLead",
+        image: "",
+      },
+    ],
+  },
+  {
+    image: "",
+    name: "RObotics",
+    description: "Fill this",
+    type: "Technical",
+    leads: [
+      {
+        name: "R1",
+        title: "Robotics Lead",
+        image: "",
+      },
+      {
+        name: "R2",
+        title: "Robotics SubLead",
+        image: "",
+      },
+      {
+        name: "R3",
+        title: "Robotics SubLead",
+        image: "",
+      },
+    ],
+  },
+];
 
 export default app;

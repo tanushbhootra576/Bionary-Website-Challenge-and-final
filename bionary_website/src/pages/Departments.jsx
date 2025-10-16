@@ -17,7 +17,7 @@ const Departments = () => {
           const res = await fetch(API_URL+'/departments')
           if (res.ok) {
             const data = await res.json()
-            setDepartments(data)
+            setDepartments(data.departmentsData)
           } else {
             setDepartments([])
           }
@@ -63,7 +63,7 @@ const Departments = () => {
         </div>
       </section>
       <section className="py-20 bg-gradient-to-br from-space-50 to-space-100 dark:from-space-800 dark:to-space-900 flex flex-col gap-20 w-full">
-        {departments.map((department, id) => (
+        {departments.length>0 && departments.map((department, id) => (
           <div className="w-3/4 mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               key={id}
