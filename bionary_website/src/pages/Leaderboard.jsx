@@ -3,7 +3,8 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import FloatingCube from "../components/3d/FloatingCube";
-import {API_URL} from '../../url.js'
+import { API_URL } from '../../url.js';
+
 const TABLE_HEAD = ["Rank", "Name", "Department"];
 
 const Leaderboard = () => {
@@ -13,17 +14,17 @@ const Leaderboard = () => {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    // Fetch leaderboard from backend
     const fetchLeaderboard = async () => {
       try {
-        const res = await fetch(API_URL+'/leaderboard')
+        const res = await fetch(`${API_URL}/leaderboard`);
         if (res.ok) {
           const data = await res.json();
           setRows(data);
         } else {
           setRows([]);
         }
-      } catch {
+      } catch (err) {
+        console.error("Failed to fetch leaderboard:", err);
         setRows([]);
       }
     };
@@ -32,9 +33,9 @@ const Leaderboard = () => {
 
   return (
     <div ref={containerRef} className="min-h-screen">
+
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* 3D Background */}
         <div className="absolute inset-0">
           <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
             <ambientLight intensity={0.5} />
@@ -46,17 +47,15 @@ const Leaderboard = () => {
           </Canvas>
         </div>
 
-        {/* Hero Content */}
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <motion.h1
-            className="events-title text-5xl md:text-7xl font-bold mb-6"
+            className="text-5xl md:text-7xl font-bold mb-6 gradient-text"
             style={{ y }}
           >
             Our <span className="gradient-text">Leaderboard</span>
           </motion.h1>
-
           <motion.p
-            className="events-subtitle text-xl md:text-2xl text-space-600 dark:text-space-300 mb-8"
+            className="text-xl md:text-2xl text-space-600 dark:text-space-300 mb-8"
             style={{ y }}
           >
             See the top performers in our club!
@@ -64,49 +63,59 @@ const Leaderboard = () => {
         </div>
       </section>
 
+
       {/* Leaderboard Table Section */}
-      <section className="py-20 bg-gradient-to-br from-space-800 to-space-900 w-full h-full rounded-lg overflow-hidden content-center text-center justify-center flex">
-        <div className="dark:bg-space-900 bg-space-400 overflow-hidden w-1/2 self-center flex rounded-md">
+      <section className="py-20 bg-gradient-to-br from-space-800 to-space-900 w-full flex justify-center">
+        <div className="dark:bg-space-900 bg-space-400 overflow-hidden w-[85%] rounded-md p-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16 w-1/2 rounded-md block"
+            className="w-full overflow-x-auto"
           >
-            <table className="w-full min-w-max table-auto relative overflow-hidden text-center">
+            <table className="w-full min-w-max table-auto text-center border-collapse">
               <thead>
                 <tr>
-                  {TABLE_HEAD.map((head) => (
+                  {TABLE_HEAD.map(head => (
                     <th
                       key={head}
-                      className="border-b-2 border-black dark:border-white pb-4 pt-10 px-10 gradient-text text-4xl"
+                      className="border-b-2 border-black dark:border-white pb-4 pt-2 px-4 md:px-6 text-2xl md:text-4xl gradient-text"
                     >
                       {head}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="text-center">
-                {rows.map(({ name, department }, index) => {
-                  const isLast = index === rows.length - 1;
-                  const rank = index+1;
-                  const classes = isLast
-                    ? "py-4"
-                    : "py-4 border-b border-gray-300";
+              <tbody>
+                {rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="py-4 text-space-600 dark:text-space-300">
+                      No leaderboard data available.
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map(({ name, department }, index) => {
+                    const isLast = index === rows.length - 1;
+                    const rank = index + 1;
+                    const classes = isLast
+                      ? "py-4 px-4 md:px-6"
+                      : "py-4 px-4 md:px-6 border-b border-gray-300 dark:border-gray-700";
 
-                  return (
-                    <tr key={rank} className="hover:bg-gray-50">
-                      <td className={classes}>{rank}</td>
-                      <td className={classes}>{name}</td>
-                      <td className={classes}>{department}</td>
-                    </tr>
-                  );
-                })}
+                    return (
+                      <tr key={rank} className="hover:bg-gray-50 dark:hover:bg-space-800 transition-colors">
+                        <td className={classes}>{rank}</td>
+                        <td className={classes}>{name}</td>
+                        <td className={classes}>{department}</td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </motion.div>
         </div>
       </section>
+
     </div>
   );
 };

@@ -1,8 +1,64 @@
 export const teamData = [
     {
-        name: "Kalyan",
-        role: "Leadership",
+        id: 'm1',
+        name: 'Kalyan Rao',
+        role: 'President',
+        department: 'Leadership',
         batch: 2023,
-        skills: "aura"
+        bio: 'Kalyan leads the club vision and partnerships. He coordinates cross-department initiatives and mentors student leaders.',
+        skills: ['Leadership', 'Strategy', 'Public Speaking'],
+        image: 'https://i.pravatar.cc/400?img=32',
+        github: 'https://github.com/kalyan',
+        linkedin: 'https://linkedin.com/in/kalyan',
+        email: 'kalyan@example.com'
+    },
+    {
+        id: 'm2',
+        name: 'Aisha Khan',
+        role: 'Lead Developer',
+        department: 'Development',
+        batch: 2024,
+        bio: 'Aisha builds web platforms and leads the developer team. She focuses on performance and developer experience.',
+        skills: ['React', 'Node.js', 'TypeScript', 'Testing'],
+        image: 'https://i.pravatar.cc/400?img=47',
+        github: 'https://github.com/aishak',
+        linkedin: 'https://linkedin.com/in/aishak',
+        email: 'aisha@example.com'
+    },
+    {
+        id: 'm3',
+        name: 'Ravi Patel',
+        role: 'AI Researcher',
+        department: 'AIML',
+        batch: 2025,
+        bio: 'Ravi works on machine learning research and helps run workshops on deep learning and data science.',
+        skills: ['Machine Learning', 'Python', 'TensorFlow', 'Pytorch'],
+        image: 'https://i.pravatar.cc/400?img=12',
+        github: 'https://github.com/ravip',
+        linkedin: 'https://linkedin.com/in/ravip',
+    },
+    {
+        id: 'm4',
+        name: 'Sara Lee',
+        role: 'Design Lead',
+        department: 'Design',
+        batch: 2024,
+        bio: 'Sara crafts the visual identity for our projects and leads UX design sprints for hackathons.',
+        skills: ['Figma', 'Illustration', 'Branding'],
+        image: 'https://i.pravatar.cc/400?img=8',
+        linkedin: 'https://linkedin.com/in/saralee',
+        email: 'sara@example.com'
+    },
+    {
+        id: 'm5',
+        name: 'Tom Becker',
+        role: 'Robotics Engineer',
+        department: 'Robotics',
+        batch: 2023,
+        bio: 'Tom builds autonomous systems and mentors the robotics teams on navigation and embedded systems.',
+        skills: ['C++', 'ROS', 'Embedded', 'Sensors'],
+        image: 'https://i.pravatar.cc/400?img=18',
+        github: 'https://github.com/tombecker',
+        linkedin: 'https://linkedin.com/in/tombecker',
     }
 ]

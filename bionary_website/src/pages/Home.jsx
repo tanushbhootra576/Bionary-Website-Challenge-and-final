@@ -6,7 +6,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowRight, Zap, Users, Code, Award, Rocket } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
-
+import { Link } from 'react-router-dom'
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger)
 
@@ -15,7 +15,7 @@ const Home = () => {
   const { isDark } = useTheme()
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], [0, -50])
-  
+
   // Animated background gradient with proper react-spring syntax
   const { background } = useSpring({
     from: { background: 'linear-gradient(120deg, #00d4ff 0%, #090979 100%)' },
@@ -43,20 +43,20 @@ const Home = () => {
         }
       })
 
-      tl.fromTo('.hero-title', 
+      tl.fromTo('.hero-title',
         { y: 100, opacity: 0 },
         { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
       )
-      .fromTo('.hero-subtitle',
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
-        '-=0.6'
-      )
-      .fromTo('.hero-cta',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
-        '-=0.4'
-      )
+        .fromTo('.hero-subtitle',
+          { y: 50, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+          '-=0.6'
+        )
+        .fromTo('.hero-cta',
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
+          '-=0.4'
+        )
 
       // Parallax sections with smoother animation
       gsap.utils.toArray('.parallax-section').forEach(section => {
@@ -114,11 +114,11 @@ const Home = () => {
       {/* Hero Section */}
       <section ref={heroRef} className="hero-section relative h-screen flex items-center justify-center overflow-hidden">
         {/* Animated Background */}
-        <animated.div 
+        <animated.div
           style={{ background }}
           className="absolute inset-0 opacity-20 dark:opacity-30"
         />
-        
+
         {/* Animated Particles Background */}
         <div className="absolute inset-0">
           <div className="relative w-full h-full">
@@ -151,7 +151,7 @@ const Home = () => {
             animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8 }}
           >
-            <motion.h1 
+            <motion.h1
               className="hero-title text-6xl md:text-8xl font-bold mb-6"
               style={{ y }}
             >
@@ -163,8 +163,8 @@ const Home = () => {
                 Tech Club
               </span>
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               className={`hero-subtitle text-xl md:text-2xl mb-8 ${isDark ? 'text-space-300' : 'text-space-600'}`}
               style={{ y }}
             >
@@ -174,8 +174,8 @@ const Home = () => {
               <br />
               Join us in shaping the future of technology
             </motion.p>
-            
-            <motion.div 
+
+            <motion.div
               className="hero-cta flex flex-col sm:flex-row gap-4 justify-center"
               style={{ y }}
             >
@@ -184,44 +184,43 @@ const Home = () => {
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-gradient-to-r from-neon-cyan to-neon-violet text-white rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Join Our Community
+                <Link to="/contact">   Join Our Community</Link>
                 <ArrowRight className="inline ml-2 w-5 h-5" />
               </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(236, 72, 153, 0.3)' }}
                 whileTap={{ scale: 0.95 }}
-                className={`px-8 py-4 border-2 border-neon-cyan rounded-lg font-semibold text-lg transition-all duration-300 ${
-                  isDark ? 'text-neon-cyan hover:bg-neon-cyan/10' : 'text-neon-cyan hover:bg-neon-cyan/10'
-                }`}
+                className={`px-8 py-4 border-2 border-neon-cyan rounded-lg font-semibold text-lg transition-all duration-300 ${isDark ? 'text-neon-cyan hover:bg-neon-cyan/10' : 'text-neon-cyan hover:bg-neon-cyan/10'
+                  }`}
               >
-                Explore Events
+                <Link to="/events"> Explore Events</Link>
               </motion.button>
             </motion.div>
           </motion.div>
         </div>
 
         {/* Enhanced Scroll Indicator */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          animate={{ 
+          animate={{
             y: [0, 10, 0],
             opacity: [0.5, 1, 0.5]
           }}
-          transition={{ 
+          transition={{
             duration: 2,
             repeat: Infinity,
             ease: 'easeInOut'
           }}
         >
           <div className="w-6 h-10 border-2 border-neon-cyan rounded-full flex justify-center">
-            <motion.div 
+            <motion.div
               className="w-1 h-3 bg-neon-cyan rounded-full mt-2"
-              animate={{ 
+              animate={{
                 y: [0, 12, 0],
                 opacity: [0.5, 1, 0.5]
               }}
-              transition={{ 
+              transition={{
                 duration: 1.5,
                 repeat: Infinity,
                 ease: 'easeInOut'
@@ -234,7 +233,7 @@ const Home = () => {
       {/* Stats Section */}
       <section className={`py-20 ${isDark ? 'bg-gradient-to-br from-space-800 to-space-900' : 'bg-gradient-to-br from-space-50 to-space-100'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -258,11 +257,10 @@ const Home = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                className={`text-center rounded-xl p-6 backdrop-blur-lg transition-all duration-300 ${
-                  isDark 
-                    ? 'bg-white/5 border border-white/10 hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/20' 
-                    : 'bg-white/50 border border-gray-200 hover:border-neon-cyan hover:shadow-lg hover:shadow-neon-cyan/20'
-                }`}
+                className={`text-center rounded-xl p-6 backdrop-blur-lg transition-all duration-300 ${isDark
+                  ? 'bg-white/5 border border-white/10 hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/20'
+                  : 'bg-white/50 border border-gray-200 hover:border-neon-cyan hover:shadow-lg hover:shadow-neon-cyan/20'
+                  }`}
               >
                 <div className="flex justify-center mb-4">
                   <stat.icon className="w-12 h-12 text-neon-cyan" />
@@ -306,11 +304,10 @@ const Home = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                  isDark 
-                    ? 'bg-white/5 backdrop-blur-lg border border-white/10 hover:border-neon-pink/50 hover:shadow-neon-pink/20' 
-                    : 'bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:border-neon-pink hover:shadow-neon-pink/20'
-                }`}
+                className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${isDark
+                  ? 'bg-white/5 backdrop-blur-lg border border-white/10 hover:border-neon-pink/50 hover:shadow-neon-pink/20'
+                  : 'bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:border-neon-pink hover:shadow-neon-pink/20'
+                  }`}
               >
                 <div className="flex justify-center mb-4">
                   <feature.icon className="w-12 h-12 text-neon-cyan" />
@@ -335,7 +332,7 @@ const Home = () => {
           <div className="absolute top-20 right-20 w-16 h-16 bg-white rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-20 left-20 w-12 h-12 bg-white rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
         </div>
-        
+
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.h2
             initial={{ opacity: 0, y: 50 }}
@@ -363,7 +360,7 @@ const Home = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-white text-neon-cyan rounded-lg font-semibold text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
+            className={`px-8 py-4 rounded-lg font-semibold text-lg shadow-lg transition-all duration-300 ${isDark ? 'bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-pink text-white hover:shadow-2xl' : 'bg-white text-neon-cyan hover:shadow-2xl'}`}
           >
             Get Started Today
             <ArrowRight className="inline ml-2 w-5 h-5" />
