@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { User, Event, Gallery, Blog, Leaderboard, Department } from "./schema.js";
+import { User, Event, Gallery, Blog, Leaderboard, Department, Team } from "./schema.js";
 
 dotenv.config();
 const { JWT_SECRET, MONGO_DB_URI } = process.env;
@@ -79,7 +79,7 @@ app.post("/api/events", authenticateToken, async (req, res) => {
       tags,
       featured,
     } = req.body;
-    
+
     const event = new Event({
       title,
       description,
@@ -93,7 +93,7 @@ app.post("/api/events", authenticateToken, async (req, res) => {
       tags,
       featured: featured ? true : false,
     });
-    
+
     const result = await event.save();
     res.json({ id: result._id, success: true });
   } catch (err) {
@@ -131,7 +131,7 @@ app.put("/api/events/:id", authenticateToken, async (req, res) => {
       tags,
       featured: featured ? true : false,
     });
-    
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -207,8 +207,54 @@ app.delete("/api/gallery/:id", authenticateToken, async (req, res) => {
 // --- Leaderboard CRUD ---
 app.get("/api/leaderboard", async (req, res) => {
   try {
-    const leaderboard = await Leaderboard.find({}).sort({ score: -1, name: 1 });
-    res.json(leaderboard);
+    // Paging, sorting, filtering (source: Team.points)
+    const page = Math.max(1, parseInt(req.query.page || '1'));
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || '10')));
+    const sortBy = req.query.sortBy || 'points';
+    const order = req.query.order === 'asc' ? 1 : -1; // default desc
+    const q = req.query.q || '';
+    const department = req.query.department || '';
+
+    const filter = {};
+    if (q) {
+      filter.name = { $regex: q, $options: 'i' };
+    }
+    if (department) {
+      filter.department = department;
+    }
+
+    const total = await Team.countDocuments(filter);
+
+    // Map sortBy to actual Team field names (accept 'score' for backward compatibility)
+    const sortField = sortBy === 'score' ? 'points' : sortBy;
+
+    const data = await Team.find(filter)
+      .sort({ [sortField]: order, name: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+
+    // Compute global rank for each returned item (based on points desc, name asc)
+    const mapped = [];
+    for (const obj of data) {
+      const pointsVal = Number(obj.points ?? 0);
+      const nameVal = obj.name || '';
+      const betterCount = await Team.countDocuments({
+        $or: [
+          { points: { $gt: pointsVal } },
+          { points: pointsVal, name: { $lt: nameVal } }
+        ]
+      });
+      mapped.push({
+        id: obj._id,
+        name: obj.name,
+        department: obj.department,
+        score: pointsVal, // frontend expects `score`
+        rank: betterCount + 1,
+      });
+    }
+
+    res.json({ total, page, limit, data: mapped });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -217,10 +263,10 @@ app.get("/api/leaderboard", async (req, res) => {
 app.post("/api/leaderboard", authenticateToken, async (req, res) => {
   try {
     const { name, score, department } = req.body;
-    const entry = new Leaderboard({ 
-      name, 
-      score: parseInt(score) || 0, 
-      department 
+    const entry = new Leaderboard({
+      name,
+      score: parseInt(score) || 0,
+      department
     });
     const result = await entry.save();
     res.json({ id: result._id, success: true });
@@ -233,10 +279,10 @@ app.put("/api/leaderboard/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, score, department } = req.body;
-    await Leaderboard.findByIdAndUpdate(id, { 
-      name, 
-      score: parseInt(score) || 0, 
-      department 
+    await Leaderboard.findByIdAndUpdate(id, {
+      name,
+      score: parseInt(score) || 0,
+      department
     });
     res.json({ success: true });
   } catch (err) {
@@ -286,13 +332,13 @@ app.put("/api/blog/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, author, body, tags, date, image } = req.body;
-    await Blog.findByIdAndUpdate(id, { 
-      title, 
-      author, 
-      body, 
-      tags, 
-      date, 
-      image 
+    await Blog.findByIdAndUpdate(id, {
+      title,
+      author,
+      body,
+      tags,
+      date,
+      image
     });
     res.json({ success: true });
   } catch (err) {
@@ -359,6 +405,29 @@ app.delete("/api/departments/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     await Department.findByIdAndDelete(id);
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Team ---
+// Public: list all team members
+app.get('/api/team', async (req, res) => {
+  try {
+    const members = await Team.find({}).sort({ createdAt: -1 });
+    res.json(members);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Protected: create a team member (admins)
+app.post('/api/team', authenticateToken, async (req, res) => {
+  try {
+    const { name, role, department, batch, bio, skills, image, github, linkedin, email, points } = req.body;
+    const member = new Team({ name, role, department, batch, bio, skills, image, github, linkedin, email, points });
+    const result = await member.save();
+    res.json({ id: result._id, success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

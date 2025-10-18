@@ -66,3 +66,19 @@ const DepartmentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export const Department = mongoose.model('Department', DepartmentSchema);
+
+const TeamMemberSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  role: String,
+  department: String,
+  batch: String,
+  bio: String,
+  skills: [String],
+  points: { type: Number, default: 0 },
+  image: String,
+  github: String,
+  linkedin: String,
+  email: String,
+}, { timestamps: true });
+
+export const Team = mongoose.model('Team', TeamMemberSchema);

@@ -23,7 +23,7 @@ const Team = () => {
 
   // filters/search
   const [searchTerm, setSearchTerm] = useState('')
-  const [departmentFilter, setDepartmentFilter] = useState('All')
+  const [departmentFilter, setDepartmentFilter] = useState('None')
   const [batchFilter, setBatchFilter] = useState('All')
 
   const fetchTeam = async () => {
@@ -33,6 +33,8 @@ const Team = () => {
       const res = await fetch(API_URL + '/team')
       if (res.ok) {
         const data = await res.json()
+        //  console.log(data);
+
         setTeam(Array.isArray(data) ? data : [])
         setUsingFallback(false)
       } else {
@@ -55,12 +57,24 @@ const Team = () => {
 
   // Split leads vs others
   const leadRegex = /lead|president|head|chair/i
-  const leads = useMemo(
-    () => team.filter(m => leadRegex.test(m.role || '') || (m.department || '').toLowerCase() === 'leadership'),
-    [team]
-  )
-  const leadIds = useMemo(() => new Set(leads.map(l => l.id)), [leads])
-  const others = useMemo(() => team.filter(m => !leadIds.has(m.id)), [team, leadIds])
+  // build leads by iterating the team array in its original order so DB order is preserved
+  const leads = useMemo(() => {
+    const out = []
+    for (let i = 0; i < team.length; i++) {
+      const m = team[i]
+      if (leadRegex.test(m.role || '') || (m.department || '').toLowerCase() === 'leadership') {
+        out.push(m)
+      }
+    }
+    // ensure presidents appear first (preserve DB order within groups)
+    const presRegex = /president/i
+    const presidents = out.filter(m => presRegex.test(m.role || ''))
+    const otherLeads = out.filter(m => !presRegex.test(m.role || ''))
+    return [...presidents, ...otherLeads]
+  }, [team])
+  // prefer MongoDB _id when available, fallback to id (local data) or generated key
+  const leadIds = useMemo(() => new Set(leads.map(l => l._id ?? l.id ?? `${l.name}`)), [leads])
+  const others = useMemo(() => team.filter(m => !leadIds.has(m._id ?? m.id ?? `${m.name}`)), [team, leadIds])
 
   // Filter options
   const departments = useMemo(() => ['All', ...new Set(team.map(t => t.department || 'Other'))], [team])
@@ -88,8 +102,12 @@ const Team = () => {
   }
 
   const filterMember = m => matchesSearch(m) && matchesFilters(m)
-  const filteredLeads = useMemo(() => leads.filter(filterMember), [leads, searchTerm, departmentFilter, batchFilter])
+  // Leads should be visible initially regardless of departmentFilter (but still match search and batch)
+  const filteredLeads = useMemo(() =>
+    leads.filter(l => matchesSearch(l) && (batchFilter === 'All' || String(l.batch) === String(batchFilter)))
+    , [leads, searchTerm, batchFilter])
   const filteredOthers = useMemo(() => others.filter(filterMember), [others, searchTerm, departmentFilter, batchFilter])
+  // (no per-department collapse state: we render filteredOthers directly)
 
   return (
     <div ref={containerRef} className="min-h-screen">
@@ -142,6 +160,7 @@ const Team = () => {
                   </div>
                 </div>
               )}
+
               {/* Search & Filters */}
               <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex-1">
@@ -173,7 +192,7 @@ const Team = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                     {filteredLeads.map((member, index) => (
                       <motion.div
-                        key={member.id}
+                        key={member._id ?? member.id ?? `${member.name}-${index}`}
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -209,17 +228,32 @@ const Team = () => {
                 </div>
               )}
 
-              {/* Others */}
+              {/* Others grouped by department */}
               <div className="mt-6">
                 <h3 className="text-2xl font-semibold mb-6">Other Members</h3>
+                {/* Department quick-filter buttons (simplified) */}
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {departments.filter(d => d !== 'All').map(d => (
+                    <button
+                      key={d}
+                      onClick={() => setDepartmentFilter(d)}
+                      className={`px-3 py-1 rounded-full text-sm ${departmentFilter === d ? 'bg-neon-cyan text-white' : 'bg-gray-100 dark:bg-space-700 text-space-900 dark:text-space-50'}`}>
+                      {d}
+                    </button>
+                  ))}
+                  <button onClick={() => setDepartmentFilter('All')} className="px-3 py-1 rounded-full text-sm bg-gray-200 dark:bg-space-700">All</button>
+                  <button onClick={() => setDepartmentFilter('None')} className="px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-space-700">None</button>
+                </div>
+
+                {/* Render all filtered other members in a single grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredOthers.map((member, index) => (
+                  {filteredOthers.map((member, idx) => (
                     <motion.div
-                      key={member.id}
+                      key={member._id ?? member.id ?? `${member.name}-${idx}`}
                       initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: index * 0.04 }}
+                      transition={{ delay: idx * 0.04 }}
                       whileHover={{ y: -6, scale: 1.01 }}
                       className="relative bg-white dark:bg-space-800 rounded-xl overflow-hidden shadow-md transition-all duration-200 p-4 flex items-center gap-4"
                     >

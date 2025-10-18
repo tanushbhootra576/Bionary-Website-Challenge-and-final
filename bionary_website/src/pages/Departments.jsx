@@ -3,31 +3,35 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import FloatingCube from "../components/3d/FloatingCube";
-import {API_URL} from '../../url.js'
+import { API_URL } from '../../url.js'
 
 const Departments = () => {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
   const [departments, setDepartments] = useState([])
-  
-    useEffect(() => {
-      // Fetch departments from backend
-      const fetchDepartments = async () => {
-        try {
-          const res = await fetch(API_URL+'/departments')
-          if (res.ok) {
-            const data = await res.json()
-            setDepartments(data.departmentsData)
-          } else {
-            setDepartments([])
-          }
-        } catch {
+
+  useEffect(() => {
+    // Fetch departments from backend
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch(API_URL + '/departments')
+        if (res.ok) {
+          const data = await res.json()
+          // be defensive: accept either an array or nested object
+          const list = Array.isArray(data) ? data : data?.departmentsData ?? []
+          setDepartments(Array.isArray(list) ? list : [])
+        } else {
           setDepartments([])
         }
+      } catch {
+        setDepartments([])
       }
-      fetchDepartments()
-    }, [])
-  
+    }
+    fetchDepartments()
+  }, [])
+
+  const hasDepartments = Array.isArray(departments) && departments.length > 0
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -63,10 +67,10 @@ const Departments = () => {
         </div>
       </section>
       <section className="py-20 bg-gradient-to-br from-space-50 to-space-100 dark:from-space-800 dark:to-space-900 flex flex-col gap-20 w-full">
-        {departments.length>0 && departments.map((department, id) => (
-          <div className="w-3/4 mx-auto px-4 sm:px-6 lg:px-8">
+        {hasDepartments ? departments.map((department, id) => (
+          <div key={department?.name ?? id} className="w-3/4 mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              key={id}
+
               className="event-card bg-white dark:bg-space-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
               whileHover={{ y: -10 }}
             >
@@ -92,23 +96,30 @@ const Departments = () => {
                     {department.description}
                   </p>
                   <div className="flex flex-row gap-8 text-center">
-                    {department.leads? department.leads.map((lead, id1) => 
-                    <div className="flex flex-col gap-2" key={id*10+id1}>
-                      <h3 className="gradient-text bold">{lead.title}</h3>
-                      <h4 className="bold">{lead.name}</h4>
-                      <img
-                        src={lead.image}
-                        alt={lead.name}
-                        width={"60px"}
-                        height={"60px"}
-                      />
-                    </div>) : <></>}
+                    {Array.isArray(department?.leads) ? (
+                      department.leads.map((lead, id1) => (
+                        <div className="flex flex-col gap-2" key={(department?.name ?? id) + '-' + id1}>
+                          <h3 className="gradient-text bold">{lead.title}</h3>
+                          <h4 className="bold">{lead.name}</h4>
+                          <img
+                            src={lead.image}
+                            alt={lead.name}
+                            width={"60px"}
+                            height={"60px"}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-sm text-space-600 dark:text-space-300">No leads listed.</div>
+                    )}
                   </div>
                 </div>
               </div>
             </motion.div>
           </div>
-        ))}
+        )) : (
+          <div className="w-full text-center py-12 text-space-600 dark:text-space-300">No departments yet. Check back later.</div>
+        )}
       </section>
     </div>
   );
