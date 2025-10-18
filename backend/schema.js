@@ -1,68 +1,68 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
-    username: String,
-    password: String
-})
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+});
 
-export const User = mongoose.model('user',UserSchema)
+export const User = mongoose.model('User', UserSchema);
 
 const EventSchema = new mongoose.Schema({
-  title: String,
+  title: { type: String, required: true },
   description: String,
-  date: Date || String,
-  time: Date || String,
+  date: String,
+  time: String,
   location: String,
-  capacity: Number,
-  registered: Number,
+  capacity: { type: Number, default: 0 },
+  registered: { type: Number, default: 0 },
   type: String,
   image: String,
   tags: String,
-  featured: Boolean,
-});
+  featured: { type: Boolean, default: false },
+}, { timestamps: true });
 
-export const Event = mongoose.model('Event', EventSchema)
+export const Event = mongoose.model('Event', EventSchema);
 
 const GallerySchema = new mongoose.Schema({
-  title: String,
+  title: { type: String, required: true },
   description: String,
   image: String,
-  date: Date || String,
+  date: String,
   category: String,
   tags: String,
-});
+}, { timestamps: true });
 
-export const Gallery = mongoose.model('Gallery',GallerySchema)
+export const Gallery = mongoose.model('Gallery', GallerySchema);
 
 const LeaderboardSchema = new mongoose.Schema({
-  name: String,
-  score: Number,
+  name: { type: String, required: true },
+  score: { type: Number, required: true, default: 0 },
   department: String,
-});
+}, { timestamps: true });
 
-export const Leaderboard = mongoose.model('Leaderboard', LeaderboardSchema)
+export const Leaderboard = mongoose.model('Leaderboard', LeaderboardSchema);
 
-export const BlogSchema = new mongoose.Schema({
-  title: String,
-  author: String,
+const BlogSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  author: { type: String, required: true },
   body: String,
   tags: String,
-  date: Date || String,
+  date: String,
   image: String,
-});
+}, { timestamps: true });
 
-export const Blog = mongoose.model('Blog', BlogSchema)
+export const Blog = mongoose.model('Blog', BlogSchema);
 
-const DepartmentSchema = mongoose.Schema({
+const DepartmentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: String,
+  type: String,
+  image: String,
+  leads: [{
     name: String,
-    description: String,
-    type: String,
-    image: String,
-    leads: [{
-        name: String,
-        title: String,
-        image: String
-    }]
-})
+    title: String,
+    image: String
+  }]
+}, { timestamps: true });
 
-export const Department = mongoose.model('Department', DepartmentSchema)
+export const Department = mongoose.model('Department', DepartmentSchema);
