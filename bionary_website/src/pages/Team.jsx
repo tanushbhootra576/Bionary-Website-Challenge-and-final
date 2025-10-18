@@ -10,7 +10,6 @@ import { API_URL } from '../../url.js'
 import { teamData as localTeamData } from '../teamData'
 import { useTheme } from '../contexts/ThemeContext'
 
-// Register GSAP plugin
 gsap.registerPlugin(ScrollTrigger)
 
 const Team = () => {
@@ -27,8 +26,6 @@ const Team = () => {
   const [departmentFilter, setDepartmentFilter] = useState('All')
   const [batchFilter, setBatchFilter] = useState('All')
 
-  // Fetch team data from API, fall back to localTeamData. Exposed as fetchTeam so we
-  // can Retry when the backend is down.
   const fetchTeam = async () => {
     setLoading(true)
     setUsingFallback(false)
