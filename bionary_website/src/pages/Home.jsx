@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { useSpring, animated } from '@react-spring/web'
 import { useInView } from 'react-intersection-observer'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, Zap, Users, Code, Award, Rocket, Moon, Sun } from 'lucide-react'
+import { ArrowRight, Zap, Users, Code, Award, Rocket } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 
 // Register GSAP plugins
@@ -12,11 +12,11 @@ gsap.registerPlugin(ScrollTrigger)
 
 const Home = () => {
   const containerRef = useRef(null)
-  const {isDark} = useTheme()
+  const { isDark } = useTheme()
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], [0, -50])
   
-  // Animated background gradient
+  // Animated background gradient with proper react-spring syntax
   const { background } = useSpring({
     from: { background: 'linear-gradient(120deg, #00d4ff 0%, #090979 100%)' },
     to: { background: 'linear-gradient(120deg, #8b5cf6 0%, #ec4899 100%)' },
@@ -31,46 +31,53 @@ const Home = () => {
   })
 
   useEffect(() => {
-    // GSAP animations for text reveal with better timing
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '.hero-section',
-        start: 'top center',
-        end: 'bottom center',
-        toggleActions: 'play none none reverse'
-      }
-    })
-
-    tl.fromTo('.hero-title', 
-      { y: 100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
-    )
-    .fromTo('.hero-subtitle',
-      { y: 50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
-      '-=0.6'
-    )
-    .fromTo('.hero-cta',
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
-      '-=0.4'
-    )
-
-    // Parallax sections with smoother animation
-    gsap.utils.toArray('.parallax-section').forEach(section => {
-      gsap.to(section, {
-        yPercent: -30,
-        ease: 'none',
+    // Create context for GSAP animations
+    const ctx = gsap.context(() => {
+      // GSAP animations for text reveal with better timing
+      const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: section,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
+          trigger: '.hero-section',
+          start: 'top center',
+          end: 'bottom center',
+          toggleActions: 'play none none reverse'
         }
       })
-    })
-  }, [])
 
+      tl.fromTo('.hero-title', 
+        { y: 100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
+      )
+      .fromTo('.hero-subtitle',
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+        '-=0.6'
+      )
+      .fromTo('.hero-cta',
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
+        '-=0.4'
+      )
+
+      // Parallax sections with smoother animation
+      gsap.utils.toArray('.parallax-section').forEach(section => {
+        gsap.to(section, {
+          yPercent: -30,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1
+          }
+        })
+      })
+    }, containerRef)
+
+    // Cleanup function
+    return () => {
+      ctx.revert()
+    }
+  }, [])
 
   const stats = [
     { icon: Users, value: "150+", label: "Active Members" },
@@ -103,9 +110,7 @@ const Home = () => {
   ]
 
   return (
-    <div ref={containerRef} className={`min-h-screen transition-colors duration-300 ${isDark ? 'dark bg-space-900' : 'bg-white'}`}>
-      {/* Dark Mode Toggle */}
-
+    <div ref={containerRef} className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-space-900' : 'bg-white'}`}>
       {/* Hero Section */}
       <section ref={heroRef} className="hero-section relative h-screen flex items-center justify-center overflow-hidden">
         {/* Animated Background */}
@@ -120,7 +125,7 @@ const Home = () => {
             {Array.from({ length: 50 }).map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-2 h-2 bg-neon-cyan rounded-full"
+                className={`absolute w-2 h-2 rounded-full ${isDark ? 'bg-neon-cyan' : 'bg-neon-violet'}`}
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
@@ -143,7 +148,7 @@ const Home = () => {
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8 }}
           >
             <motion.h1 
@@ -154,13 +159,13 @@ const Home = () => {
                 Bionary
               </span>
               <br />
-              <span className="text-space-900 dark:text-space-50">
+              <span className={`${isDark ? 'text-space-50' : 'text-space-900'}`}>
                 Tech Club
               </span>
             </motion.h1>
             
             <motion.p 
-              className="hero-subtitle text-xl md:text-2xl text-space-600 dark:text-space-300 mb-8"
+              className={`hero-subtitle text-xl md:text-2xl mb-8 ${isDark ? 'text-space-300' : 'text-space-600'}`}
               style={{ y }}
             >
               <span className="font-semibold text-neon-cyan">Innovate.</span>{" "}
@@ -186,7 +191,9 @@ const Home = () => {
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(236, 72, 153, 0.3)' }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 border-2 border-neon-cyan text-neon-cyan rounded-lg font-semibold text-lg hover:bg-neon-cyan/10 transition-all duration-300"
+                className={`px-8 py-4 border-2 border-neon-cyan rounded-lg font-semibold text-lg transition-all duration-300 ${
+                  isDark ? 'text-neon-cyan hover:bg-neon-cyan/10' : 'text-neon-cyan hover:bg-neon-cyan/10'
+                }`}
               >
                 Explore Events
               </motion.button>
@@ -225,19 +232,20 @@ const Home = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-br from-space-50 to-space-100 dark:from-space-800 dark:to-space-900">
+      <section className={`py-20 ${isDark ? 'bg-gradient-to-br from-space-800 to-space-900' : 'bg-gradient-to-br from-space-50 to-space-100'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Why Choose <span className="gradient-text">Bionary</span>?
+            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-space-50' : 'text-space-900'}`}>
+              Our <span className="bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-neon-violet">Impact</span>
             </h2>
-            <p className="text-xl text-space-600 dark:text-space-300 max-w-3xl mx-auto">
-              We provide the perfect environment for tech enthusiasts to grow, learn, and innovate together.
+            <p className={`text-xl max-w-3xl mx-auto ${isDark ? 'text-space-300' : 'text-space-600'}`}>
+              Numbers that speak for our vibrant community and achievements.
             </p>
           </motion.div>
 
@@ -248,16 +256,21 @@ const Home = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center glass-effect rounded-xl p-6 neon-glow hover:neon-glow-violet transition-all duration-300"
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className={`text-center rounded-xl p-6 backdrop-blur-lg transition-all duration-300 ${
+                  isDark 
+                    ? 'bg-white/5 border border-white/10 hover:border-neon-cyan/50 hover:shadow-lg hover:shadow-neon-cyan/20' 
+                    : 'bg-white/50 border border-gray-200 hover:border-neon-cyan hover:shadow-lg hover:shadow-neon-cyan/20'
+                }`}
               >
                 <div className="flex justify-center mb-4">
                   <stat.icon className="w-12 h-12 text-neon-cyan" />
                 </div>
-                <div className="text-3xl md:text-4xl font-bold text-space-900 dark:text-space-50 mb-2">
+                <div className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? 'text-space-50' : 'text-space-900'}`}>
                   {stat.value}
                 </div>
-                <div className="text-space-600 dark:text-space-300">
+                <div className={isDark ? 'text-space-300' : 'text-space-600'}>
                   {stat.label}
                 </div>
               </motion.div>
@@ -267,18 +280,19 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20">
+      <section className={`py-20 ${isDark ? 'bg-space-900' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Why Choose <span className="gradient-text">Bionary</span>?
+            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-space-50' : 'text-space-900'}`}>
+              Why Choose <span className="bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-neon-pink">Bionary</span>?
             </h2>
-            <p className="text-xl text-space-600 dark:text-space-300 max-w-3xl mx-auto">
+            <p className={`text-xl max-w-3xl mx-auto ${isDark ? 'text-space-300' : 'text-space-600'}`}>
               We provide the perfect environment for tech enthusiasts to grow, learn, and innovate together.
             </p>
           </motion.div>
@@ -290,17 +304,21 @@ const Home = () => {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -10 }}
-                className="p-6 rounded-xl glass-effect shadow-lg hover:shadow-xl transition-all duration-300 neon-glow hover:neon-glow-pink"
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${
+                  isDark 
+                    ? 'bg-white/5 backdrop-blur-lg border border-white/10 hover:border-neon-pink/50 hover:shadow-neon-pink/20' 
+                    : 'bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:border-neon-pink hover:shadow-neon-pink/20'
+                }`}
               >
                 <div className="flex justify-center mb-4">
                   <feature.icon className="w-12 h-12 text-neon-cyan" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-space-900 dark:text-space-50">
+                <h3 className={`text-xl font-semibold mb-3 ${isDark ? 'text-space-50' : 'text-space-900'}`}>
                   {feature.title}
                 </h3>
-                <p className="text-space-600 dark:text-space-300">
+                <p className={isDark ? 'text-space-300' : 'text-space-600'}>
                   {feature.description}
                 </p>
               </motion.div>
@@ -323,7 +341,9 @@ const Home = () => {
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-white mb-6 text-shadow"
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-white mb-6"
+            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
           >
             Ready to Start Your Journey?
           </motion.h2>
@@ -331,7 +351,7 @@ const Home = () => {
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.1, duration: 0.6 }}
             className="text-xl text-white/90 mb-8"
           >
             Join hundreds of students who are already building the future with Bionary.
@@ -340,10 +360,10 @@ const Home = () => {
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-white text-neon-cyan rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 neon-glow hover:neon-glow-violet"
+            className="px-8 py-4 bg-white text-neon-cyan rounded-lg font-semibold text-lg shadow-lg hover:shadow-2xl transition-all duration-300"
           >
             Get Started Today
             <ArrowRight className="inline ml-2 w-5 h-5" />
@@ -354,4 +374,4 @@ const Home = () => {
   )
 }
 
-export default Home 
+export default Home
